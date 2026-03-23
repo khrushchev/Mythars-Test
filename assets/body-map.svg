@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 220" fill="none">
+  <style>
+    .loc { fill: #2a2218; stroke: #5a4a34; stroke-width: 1.5; cursor: pointer; transition: fill 0.15s; }
+    .loc:hover { fill: #3a3020; stroke: #c9972a; }
+    .loc.wounded  { fill: #3a2a10; stroke: #c9972a; }
+    .loc.serious  { fill: #3a1a10; stroke: #a03028; }
+    .loc.critical { fill: #2a0808; stroke: #c84030; }
+    .loc-label { font-family: 'Cinzel', serif; font-size: 5px; fill: #7a6650; text-anchor: middle; pointer-events: none; }
+  </style>
+
+  <!-- Head -->
+  <ellipse id="body-head" class="loc" data-loc="hl_head" cx="50" cy="22" rx="14" ry="16"/>
+
+  <!-- Chest (torso upper) -->
+  <rect id="body-chest" class="loc" data-loc="hl_ches" x="28" y="42" width="44" height="36" rx="4"/>
+
+  <!-- Abdomen -->
+  <rect id="body-abdomen" class="loc" data-loc="hl_abdo" x="30" y="81" width="40" height="28" rx="4"/>
+
+  <!-- Right Arm (character's right = viewer's left) -->
+  <rect id="body-rarm" class="loc" data-loc="hl_rarm" x="12" y="44" width="14" height="52" rx="7"/>
+
+  <!-- Left Arm -->
+  <rect id="body-larm" class="loc" data-loc="hl_larm" x="74" y="44" width="14" height="52" rx="7"/>
+
+  <!-- Right Leg -->
+  <rect id="body-rleg" class="loc" data-loc="hl_rleg" x="29" y="112" width="18" height="64" rx="8"/>
+
+  <!-- Left Leg -->
+  <rect id="body-lleg" class="loc" data-loc="hl_lleg" x="53" y="112" width="18" height="64" rx="8"/>
+
+  <!-- Labels -->
+  <text class="loc-label" x="50" y="24">HEAD</text>
+  <text class="loc-label" x="50" y="62">CHEST</text>
+  <text class="loc-label" x="50" y="98">ABDO</text>
+  <text class="loc-label" x="19" y="72">R.ARM</text>
+  <text class="loc-label" x="81" y="72">L.ARM</text>
+  <text class="loc-label" x="38" y="148">R.LEG</text>
+  <text class="loc-label" x="62" y="148">L.LEG</text>
+</svg>

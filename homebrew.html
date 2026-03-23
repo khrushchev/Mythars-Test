@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MythrasForge — Homebrew Editor</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/sheet.css">
+</head>
+<body>
+
+<nav class="app-nav">
+  <a href="index.html" class="app-nav-brand" style="text-decoration:none;">⚔ MythrasForge</a>
+  <div class="app-nav-links">
+    <button class="btn btn-secondary btn-sm" id="import-btn">↑ Import JSON</button>
+    <button class="btn btn-secondary btn-sm" id="export-btn">↓ Export JSON</button>
+    <a href="index.html" class="btn btn-ghost btn-sm">← Back</a>
+  </div>
+</nav>
+
+<main class="page">
+  <div style="margin-bottom:var(--sp-6);">
+    <h1 style="font-size:var(--text-3xl);letter-spacing:0.04em;color:var(--text-bright);">Homebrew Editor</h1>
+    <p style="color:var(--text-secondary);margin-top:var(--sp-1);">Add custom species, cultures, and careers. Core rulebook entries are read-only.</p>
+  </div>
+
+  <div class="homebrew-tab-bar">
+    <button class="homebrew-tab active" data-tab="species">Species</button>
+    <button class="homebrew-tab" data-tab="cultures">Cultures</button>
+    <button class="homebrew-tab" data-tab="careers">Careers</button>
+  </div>
+
+  <!-- SPECIES -->
+  <div class="hb-panel active" data-tab="species">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:var(--sp-4);">
+      <button class="btn btn-primary" id="add-species-btn">+ New Species</button>
+    </div>
+    <div class="card" id="homebrew-species-list"></div>
+    <div class="card" style="margin-top:var(--sp-4);">
+      <div class="card-header"><span class="card-title">Core Rulebook Species</span><span class="text-dim" style="font-size:var(--text-xs)">Read-only · Copy to create a variant</span></div>
+      <div id="core-species-list"></div>
+    </div>
+  </div>
+
+  <!-- CULTURES -->
+  <div class="hb-panel hidden" data-tab="cultures">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:var(--sp-4);">
+      <button class="btn btn-primary" id="add-culture-btn">+ New Culture</button>
+    </div>
+    <div class="card" id="homebrew-culture-list"></div>
+    <div class="card" style="margin-top:var(--sp-4);">
+      <div class="card-header"><span class="card-title">Core Rulebook Cultures</span><span class="text-dim" style="font-size:var(--text-xs)">Read-only · Copy to create a variant</span></div>
+      <div id="core-culture-list"></div>
+    </div>
+  </div>
+
+  <!-- CAREERS -->
+  <div class="hb-panel hidden" data-tab="careers">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:var(--sp-4);">
+      <button class="btn btn-primary" id="add-career-btn">+ New Career</button>
+    </div>
+    <div class="card" id="homebrew-career-list"></div>
+    <div class="card" style="margin-top:var(--sp-4);">
+      <div class="card-header"><span class="card-title">Core Rulebook Careers</span><span class="text-dim" style="font-size:var(--text-xs)">Read-only · Copy to create a variant</span></div>
+      <div id="core-career-list"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ── SPECIES MODAL ── -->
+<div id="species-modal" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:700px;max-height:90vh;overflow-y:auto;">
+    <h2 class="modal-title" id="species-modal-title">New Species</h2>
+    <div class="two-col">
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Name *</label><input type="text" id="sp-name"></div>
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Description</label><textarea id="sp-desc" rows="2"></textarea></div>
+      <div class="form-group"><label class="form-label">Movement Rate</label><input type="number" id="sp-move" value="6" min="1" max="20" style="max-width:6rem;"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Characteristics (NdM+bonus)</label>
+      <div id="sp-char-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:var(--sp-2);margin-top:var(--sp-2);"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Special Traits</label>
+      <div id="sp-traits-list"></div>
+      <button class="add-row-btn" onclick="window._addTrait()">+ Add Trait</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="sp-delete" style="margin-right:auto;">Delete</button>
+      <button class="btn btn-secondary" id="sp-cancel">Cancel</button>
+      <button class="btn btn-primary" id="sp-save">Save Species</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CULTURE MODAL ── -->
+<div id="culture-modal" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:700px;max-height:90vh;overflow-y:auto;">
+    <h2 class="modal-title" id="culture-modal-title">New Culture</h2>
+    <div class="two-col">
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Name *</label><input type="text" id="cu-name"></div>
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Description</label><textarea id="cu-desc" rows="2"></textarea></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Standard Skill Bonuses</label>
+      <div id="cu-skill-list"></div>
+      <button class="add-row-btn" onclick="window._addCultureSkill()">+ Add Skill Bonus</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Starting Combat Style</label>
+      <div class="two-col">
+        <div><label class="form-label">Style Name</label><input type="text" id="cu-cs-name" placeholder="e.g. Barbarian Warrior"></div>
+        <div><label class="form-label">Bonus Points</label><input type="number" id="cu-cs-bonus" value="10" min="0" max="50" style="max-width:6rem;"></div>
+        <div style="grid-column:1/-1"><label class="form-label">Weapons (comma-separated)</label><input type="text" id="cu-cs-weapons" placeholder="Sword, Shield, Spear"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Professional Skill Choices</label>
+      <div class="two-col" style="margin-bottom:var(--sp-2);">
+        <div><label class="form-label">Available Skills (comma-separated)</label><input type="text" id="cu-prof-choices" placeholder="Survival, Track, Navigate"></div>
+        <div><label class="form-label">Player Picks N</label><input type="number" id="cu-prof-count" value="2" min="0" max="10" style="max-width:6rem;"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="cu-delete" style="margin-right:auto;">Delete</button>
+      <button class="btn btn-secondary" id="cu-cancel">Cancel</button>
+      <button class="btn btn-primary" id="cu-save">Save Culture</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CAREER MODAL ── -->
+<div id="career-modal" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:700px;max-height:90vh;overflow-y:auto;">
+    <h2 class="modal-title" id="career-modal-title">New Career</h2>
+    <div class="two-col">
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Name *</label><input type="text" id="ca-name"></div>
+      <div class="form-group" style="grid-column:1/-1"><label class="form-label">Description</label><textarea id="ca-desc" rows="2"></textarea></div>
+      <div class="form-group"><label class="form-label">Career Skill Points</label><input type="number" id="ca-points" value="60" min="20" max="120" style="max-width:6rem;"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Standard Skill Bonuses</label>
+      <div id="ca-std-skill-list"></div>
+      <button class="add-row-btn" onclick="window._addCareerStdSkill()">+ Add Standard Skill Bonus</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Professional Skills</label>
+      <div id="ca-prof-list"></div>
+      <button class="add-row-btn" onclick="window._addCareerProf()">+ Add Professional Skill</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Starting Equipment</label>
+      <div id="ca-equip-list"></div>
+      <button class="add-row-btn" onclick="window._addCareerEquip()">+ Add Equipment</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Suggested Magic Systems</label>
+      <div style="display:flex;gap:var(--sp-4);flex-wrap:wrap;margin-top:var(--sp-2);">
+        ${["folkMagic","theism","sorcery","animism","mysticism"].map(s=>`<label class="shaping-item"><input type="checkbox" id="ca-magic-${s}" value="${s}"><span class="shaping-label">${s}</span></label>`).join("")}
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="ca-delete" style="margin-right:auto;">Delete</button>
+      <button class="btn btn-secondary" id="ca-cancel">Cancel</button>
+      <button class="btn btn-primary" id="ca-save">Save Career</button>
+    </div>
+  </div>
+</div>
+
+<!-- Import modal -->
+<div id="import-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <h2 class="modal-title">Import Homebrew</h2>
+    <div class="form-group">
+      <label class="form-label">Homebrew JSON File</label>
+      <input type="file" id="import-file" accept=".json" style="color:var(--text-primary);">
+    </div>
+    <p class="form-hint">Existing homebrew entries with matching IDs will be overwritten. New entries will be added.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="import-cancel">Cancel</button>
+      <button class="btn btn-primary" id="import-confirm">Import</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<style>
+.hb-panel.hidden { display: none; }
+.hb-panel.active { display: block; }
+
+.skill-row-input {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+.skill-row-input:last-child { border-bottom: none; }
+
+.prof-row-input {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.char-dice-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+.char-dice-label {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-label);
+}
+.char-dice-field {
+  width: 100%;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  padding: 3px 4px;
+}
+</style>
+
+<script type="module" src="js/homebrew.js"></script>
+</body>
+</html>

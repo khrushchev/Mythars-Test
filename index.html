@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MythrasForge</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/sheet.css">
+</head>
+<body>
+
+<nav class="app-nav">
+  <span class="app-nav-brand">⚔ MythrasForge</span>
+  <div class="app-nav-links">
+    <a href="wizard.html">New Character</a>
+    <a href="homebrew.html">Homebrew</a>
+  </div>
+</nav>
+
+<main class="page">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-6);">
+    <div>
+      <h1 style="font-size:var(--text-3xl);letter-spacing:0.04em;color:var(--text-bright);">Characters</h1>
+      <p style="color:var(--text-secondary);margin-top:var(--sp-1);">Your campaign roster</p>
+    </div>
+    <div style="display:flex;gap:var(--sp-2);">
+      <button class="btn btn-secondary" id="import-btn">↑ Import</button>
+      <a href="wizard.html" class="btn btn-primary">+ New Character</a>
+    </div>
+  </div>
+
+  <div id="char-grid" class="char-list-grid"></div>
+
+  <div id="empty-state" class="empty-state hidden">
+    <div class="empty-state-icon">⚔</div>
+    <div class="empty-state-text">No characters yet</div>
+    <p style="color:var(--text-dim);margin-top:var(--sp-2);font-size:var(--text-sm);">Create your first character to get started</p>
+    <a href="wizard.html" class="btn btn-primary" style="margin-top:var(--sp-4);">+ Create Character</a>
+  </div>
+
+  <div id="storage-info" style="margin-top:var(--sp-8);text-align:center;font-size:var(--text-xs);color:var(--text-dim);font-family:var(--font-mono);"></div>
+</main>
+
+<!-- Context menu -->
+<div id="context-menu" class="hidden" style="
+  position:fixed; z-index:500;
+  background:var(--bg-card); border:1px solid var(--border-heavy);
+  border-radius:var(--radius-lg); padding:var(--sp-1); min-width:160px;
+  box-shadow:var(--shadow-lg);
+">
+  <button class="context-item" data-action="open">Open Sheet</button>
+  <button class="context-item" data-action="duplicate">Duplicate</button>
+  <button class="context-item" data-action="export">Export JSON</button>
+  <hr class="divider" style="margin:var(--sp-1) 0;">
+  <button class="context-item danger" data-action="delete">Delete</button>
+</div>
+
+<!-- Import modal -->
+<div id="import-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <h2 class="modal-title">Import Character</h2>
+    <div class="form-group">
+      <label class="form-label">JSON File</label>
+      <input type="file" id="import-file" accept=".json" style="color:var(--text-primary);">
+    </div>
+    <p class="form-hint">A new ID will be assigned. The character's name will be marked "(imported)".</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="import-cancel">Cancel</button>
+      <button class="btn btn-primary" id="import-confirm">Import</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirm modal -->
+<div id="delete-modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <h2 class="modal-title">Delete Character?</h2>
+    <p id="delete-modal-msg" style="color:var(--text-secondary);margin-bottom:var(--sp-4);"></p>
+    <p style="color:var(--text-dim);font-size:var(--text-sm);">This cannot be undone. Export the character first if you want a backup.</p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" id="delete-cancel">Cancel</button>
+      <button class="btn btn-danger" id="delete-confirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<style>
+.char-list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--sp-4);
+}
+.char-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-lg);
+  padding: var(--sp-5);
+  cursor: pointer;
+  transition: all 200ms ease;
+  position: relative;
+  text-decoration: none;
+  display: block;
+  animation: cardIn 300ms ease backwards;
+}
+.char-card:hover {
+  border-color: var(--border-accent);
+  background: var(--bg-hover);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+.char-card-name {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--text-bright);
+  margin-bottom: var(--sp-2);
+  line-height: 1.2;
+}
+.char-card-identity {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-3);
+}
+.char-card-date {
+  font-size: var(--text-xs);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+}
+.char-card-menu {
+  position: absolute;
+  top: var(--sp-3);
+  right: var(--sp-3);
+  opacity: 0;
+  transition: opacity var(--transition);
+}
+.char-card:hover .char-card-menu { opacity: 1; }
+.context-item {
+  display: block; width: 100%;
+  text-align: left;
+  padding: var(--sp-2) var(--sp-3);
+  background: transparent; border: none;
+  color: var(--text-secondary);
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.context-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+.context-item.danger { color: var(--red-bright); }
+.context-item.danger:hover { background: rgba(160,48,40,0.15); }
+@keyframes cardIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform: none; } }
+</style>
+
+<script type="module">
+import { Storage } from "./js/storage.js";
+
+let contextTargetId = null;
+let deleteTargetId  = null;
+
+function relativeTime(iso) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const m = Math.floor(diff / 60000);
+  if (m < 1)   return "just now";
+  if (m < 60)  return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24)  return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 7)   return `${d}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
+function render() {
+  const chars = Storage.listCharacters();
+  const grid  = document.getElementById("char-grid");
+  const empty = document.getElementById("empty-state");
+
+  if (!chars.length) {
+    grid.innerHTML = "";
+    empty.classList.remove("hidden");
+    return;
+  }
+  empty.classList.add("hidden");
+
+  // Sort by most recently updated
+  chars.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+  grid.innerHTML = chars.map((c, i) => `
+    <div class="char-card" data-id="${c.id}" style="animation-delay:${i*40}ms"
+         onclick="openSheet('${c.id}')">
+      <button class="btn-icon char-card-menu" onclick="event.stopPropagation(); showMenu(event, '${c.id}')">⋮</button>
+      <div class="char-card-name">${c.name || "Unnamed"}</div>
+      <div class="char-card-identity">${[c.species, c.career].filter(Boolean).join(" · ") || "—"}</div>
+      <div class="char-card-date">Updated ${relativeTime(c.updatedAt)}</div>
+    </div>
+  `).join("");
+
+  document.getElementById("storage-info").textContent =
+    `${chars.length} character${chars.length !== 1 ? "s" : ""} · ${Storage.storageUsedKB()} KB used`;
+}
+
+window.openSheet = function(id) {
+  window.location.href = `sheet.html?id=${id}`;
+};
+
+window.showMenu = function(e, id) {
+  contextTargetId = id;
+  const menu = document.getElementById("context-menu");
+  menu.classList.remove("hidden");
+  const x = Math.min(e.clientX, window.innerWidth  - 180);
+  const y = Math.min(e.clientY, window.innerHeight - 160);
+  menu.style.left = x + "px";
+  menu.style.top  = y + "px";
+};
+
+document.addEventListener("click", e => {
+  const menu = document.getElementById("context-menu");
+  if (!menu.contains(e.target)) menu.classList.add("hidden");
+});
+
+document.getElementById("context-menu").addEventListener("click", e => {
+  const action = e.target.dataset.action;
+  if (!action || !contextTargetId) return;
+  document.getElementById("context-menu").classList.add("hidden");
+
+  if (action === "open")      { window.location.href = `sheet.html?id=${contextTargetId}`; }
+  if (action === "duplicate") { Storage.duplicateCharacter(contextTargetId); render(); }
+  if (action === "export")    { Storage.exportCharacter(contextTargetId); }
+  if (action === "delete")    {
+    const chars = Storage.listCharacters();
+    const c = chars.find(x => x.id === contextTargetId);
+    deleteTargetId = contextTargetId;
+    document.getElementById("delete-modal-msg").textContent =
+      `Are you sure you want to delete "${c?.name || "this character"}"?`;
+    document.getElementById("delete-modal").classList.remove("hidden");
+  }
+});
+
+document.getElementById("delete-cancel").addEventListener("click",  () => document.getElementById("delete-modal").classList.add("hidden"));
+document.getElementById("delete-confirm").addEventListener("click", () => {
+  if (deleteTargetId) { Storage.deleteCharacter(deleteTargetId); deleteTargetId = null; }
+  document.getElementById("delete-modal").classList.add("hidden");
+  render();
+});
+
+// Import
+document.getElementById("import-btn").addEventListener("click", () => document.getElementById("import-modal").classList.remove("hidden"));
+document.getElementById("import-cancel").addEventListener("click", () => document.getElementById("import-modal").classList.add("hidden"));
+document.getElementById("import-confirm").addEventListener("click", () => {
+  const file = document.getElementById("import-file").files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const char = Storage.importCharacter(e.target.result);
+      document.getElementById("import-modal").classList.add("hidden");
+      render();
+      window.location.href = `sheet.html?id=${char.id}`;
+    } catch (err) {
+      alert("Import failed: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+});
+
+render();
+</script>
+</body>
+</html>

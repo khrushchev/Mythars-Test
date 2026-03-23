@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="beyond20:sheet" content="MythrasForge">
+  <title>MythrasForge — Sheet</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/sheet.css">
+</head>
+<body class="sheet-page">
+
+<nav class="app-nav">
+  <a href="index.html" class="app-nav-brand" style="text-decoration:none;">⚔ MythrasForge</a>
+  <div class="app-nav-links">
+    <span id="save-status" class="save-status">—</span>
+    <div class="b20-indicator" id="b20-indicator">
+      <span class="b20-dot"></span>
+      <span class="b20-text">B20</span>
+    </div>
+    <button class="btn btn-secondary btn-sm" id="export-btn">↓ Export</button>
+    <a href="index.html" class="btn btn-ghost btn-sm">← Back</a>
+  </div>
+</nav>
+
+<div id="sheet-header" class="sheet-header">
+  <div>
+    <div id="sheet-name" class="sheet-name" contenteditable="true" spellcheck="false">Loading…</div>
+    <div id="sheet-subtitle" class="sheet-subtitle"></div>
+  </div>
+</div>
+
+<nav class="sheet-tabs" role="tablist" id="sheet-tabs">
+  <button class="sheet-tab" role="tab" aria-selected="true"  data-tab="identity">Identity</button>
+  <button class="sheet-tab" role="tab" aria-selected="false" data-tab="chars">Characteristics</button>
+  <button class="sheet-tab" role="tab" aria-selected="false" data-tab="skills">Skills</button>
+  <button class="sheet-tab" role="tab" aria-selected="false" data-tab="combat">Combat</button>
+  <button class="sheet-tab" role="tab" aria-selected="false" data-tab="magic">Magic</button>
+  <button class="sheet-tab" role="tab" aria-selected="false" data-tab="gear">Gear</button>
+  <button class="sheet-tab" role="tab" aria-selected="false" data-tab="notes">Notes</button>
+</nav>
+
+<main class="sheet-content">
+
+<!-- IDENTITY TAB -->
+<div class="tab-panel active" data-tab="identity">
+  <div class="tab-panel-inner">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Identity</span></div>
+      <div class="card-body">
+        <div class="identity-grid">
+          <div class="form-group"><label class="form-label">Name</label><input type="text" data-field="identity.name" id="field-name"></div>
+          <div class="form-group"><label class="form-label">Species</label><input type="text" data-field="identity.species"></div>
+          <div class="form-group"><label class="form-label">Culture</label><input type="text" data-field="identity.culture"></div>
+          <div class="form-group"><label class="form-label">Career</label><input type="text" data-field="identity.career"></div>
+          <div class="form-group"><label class="form-label">Rank / Title</label><input type="text" data-field="identity.rank"></div>
+          <div class="form-group"><label class="form-label">Age</label><input type="number" data-field="identity.age" min="0" max="999"></div>
+          <div class="form-group"><label class="form-label">Gender / Pronouns</label><input type="text" data-field="identity.gender"></div>
+          <div class="form-group"><label class="form-label">Deity</label><input type="text" data-field="identity.deity"></div>
+          <div class="form-group"><label class="form-label">Cult</label><input type="text" data-field="identity.cult"></div>
+          <div class="form-group"><label class="form-label">Height</label><input type="text" data-field="identity.height"></div>
+          <div class="form-group"><label class="form-label">Weight</label><input type="text" data-field="identity.weight"></div>
+          <div class="form-group"><label class="form-label">Hair</label><input type="text" data-field="identity.hair"></div>
+          <div class="form-group"><label class="form-label">Eyes</label><input type="text" data-field="identity.eyes"></div>
+          <div class="form-group span-2"><label class="form-label">Distinguishing Marks</label><input type="text" data-field="identity.distinguishingMarks"></div>
+          <div class="form-group span-2"><label class="form-label">Background</label><textarea data-field="identity.background" rows="4"></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">Passions</span><button class="btn btn-ghost btn-sm" id="add-passion">+ Add Passion</button></div>
+      <ul class="skill-list" id="passion-list"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- CHARACTERISTICS TAB -->
+<div class="tab-panel" data-tab="chars">
+  <div class="tab-panel-inner">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Characteristics</span><span class="text-dim" style="font-size:var(--text-xs)">Click value to edit · Click die to roll ×5</span></div>
+      <div class="card-body">
+        <div class="char-grid" id="char-grid"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Derived Attributes</span></div>
+      <div class="card-body">
+        <div class="attr-grid" id="attr-grid"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Attribute Modifiers</span><span class="text-dim" style="font-size:var(--text-xs)">Temporary bonuses/penalties</span></div>
+      <div class="card-body">
+        <div class="two-col">
+          <div class="form-group"><label class="form-label">Action Points +/−</label><input type="number" data-field="attributes.modifiers.actionPoints" style="max-width:8rem;"></div>
+          <div class="form-group"><label class="form-label">Hit Points +/−</label><input type="number" data-field="attributes.modifiers.hitPoints" style="max-width:8rem;"></div>
+          <div class="form-group"><label class="form-label">Magic Points +/−</label><input type="number" data-field="attributes.modifiers.magicPoints" style="max-width:8rem;"></div>
+          <div class="form-group"><label class="form-label">Luck Points +/−</label><input type="number" data-field="attributes.modifiers.luckPoints" style="max-width:8rem;"></div>
+          <div class="form-group"><label class="form-label">Movement +/−</label><input type="number" data-field="attributes.modifiers.movementRate" style="max-width:8rem;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SKILLS TAB -->
+<div class="tab-panel" data-tab="skills">
+  <div class="tab-panel-inner">
+    <div class="skills-columns">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Standard Skills</span><span class="text-dim" style="font-size:var(--text-xs)">Bonus pts</span></div>
+        <ul class="skill-list" id="standard-skill-list"></ul>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Professional Skills</span><button class="btn btn-ghost btn-sm" id="add-prof-skill">+ Add</button></div>
+        <ul class="skill-list" id="prof-skill-list"></ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMBAT TAB -->
+<div class="tab-panel" data-tab="combat">
+  <div class="tab-panel-inner">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Combat Styles</span><button class="btn btn-ghost btn-sm" id="add-combat-style">+ Add Style</button></div>
+      <div id="combat-style-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Weapons</span><button class="btn btn-ghost btn-sm" id="add-weapon">+ Add Weapon</button></div>
+      <div id="weapon-list"></div>
+    </div>
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header"><span class="card-title">Hit Locations</span></div>
+        <div class="card-body">
+          <div id="hit-location-list"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Armor</span><button class="btn btn-ghost btn-sm" id="add-armor">+ Add Armor</button></div>
+        <div id="armor-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAGIC TAB -->
+<div class="tab-panel" data-tab="magic">
+  <div class="tab-panel-inner">
+    <div class="magic-systems" id="magic-system-btns"></div>
+    <div id="magic-panels"></div>
+  </div>
+</div>
+
+<!-- GEAR TAB -->
+<div class="tab-panel" data-tab="gear">
+  <div class="tab-panel-inner">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Equipment</span><button class="btn btn-ghost btn-sm" id="add-equipment">+ Add Item</button></div>
+      <div id="equipment-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><span class="card-title">Currency</span></div>
+      <div class="card-body">
+        <div class="currency-grid">
+          <div class="currency-block"><span class="currency-label" style="color:var(--gold)">Gold</span><input type="number" class="currency-input" data-field="currency.gold" min="0"></div>
+          <div class="currency-block"><span class="currency-label" style="color:#aaa">Silver</span><input type="number" class="currency-input" data-field="currency.silver" min="0"></div>
+          <div class="currency-block"><span class="currency-label" style="color:#c87837">Copper</span><input type="number" class="currency-input" data-field="currency.copper" min="0"></div>
+          <div class="currency-block"><span class="currency-label">Other</span><input type="text" class="currency-input" data-field="currency.custom" style="font-size:var(--text-base);"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NOTES TAB -->
+<div class="tab-panel" data-tab="notes">
+  <div class="tab-panel-inner">
+    <div class="card">
+      <div class="card-header"><span class="card-title">Notes</span></div>
+      <div class="card-body">
+        <textarea data-field="notes" rows="20" placeholder="Campaign notes, background details, NPC relationships…" style="min-height:400px;font-size:var(--text-base);line-height:1.6;"></textarea>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<footer class="sheet-footer">
+  <div class="footer-stat">
+    <span>ENC</span>
+    <span class="footer-stat-val" id="enc-val">0</span>
+    <span class="text-dim">/</span>
+    <span class="footer-stat-val" id="enc-limit">—</span>
+    <div class="enc-bar"><div class="enc-bar-fill" id="enc-bar-fill" style="width:0%"></div></div>
+  </div>
+  <div class="footer-stat">
+    <span>AP</span>
+    <span class="footer-stat-val" id="footer-ap">—</span>
+  </div>
+  <div class="footer-stat">
+    <span>MP</span>
+    <span class="footer-stat-val" id="footer-mp">—</span>
+  </div>
+  <div class="footer-stat">
+    <span>Luck</span>
+    <span class="footer-stat-val" id="footer-luck">—</span>
+  </div>
+</footer>
+
+<div id="toast-container"></div>
+
+<!-- Generic item modal -->
+<div id="item-modal" class="modal-backdrop hidden">
+  <div class="modal" style="max-width:600px;">
+    <h2 class="modal-title" id="item-modal-title">Edit</h2>
+    <div id="item-modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger btn-sm" id="item-modal-delete" style="margin-right:auto;">Delete</button>
+      <button class="btn btn-secondary" id="item-modal-cancel">Cancel</button>
+      <button class="btn btn-primary" id="item-modal-save">Save</button>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="js/sheet.js"></script>
+</body>
+</html>

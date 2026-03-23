@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MythrasForge — New Character</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/sheet.css">
+</head>
+<body>
+<nav class="app-nav">
+  <a href="index.html" class="app-nav-brand" style="text-decoration:none;">⚔ MythrasForge</a>
+  <div class="app-nav-links"><a href="index.html" class="btn btn-ghost btn-sm">✕ Cancel</a></div>
+</nav>
+
+<div class="wizard-layout">
+  <!-- Progress -->
+  <div class="wizard-progress">
+    <div class="wizard-steps" id="wizard-steps"></div>
+  </div>
+
+  <!-- Body -->
+  <div class="wizard-body">
+    <div id="step-content"></div>
+    <div class="wizard-actions">
+      <button class="btn btn-secondary" id="back-btn">← Back</button>
+      <button class="btn btn-primary"   id="next-btn">Next →</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+<script type="module" src="js/wizard.js"></script>
+</body>
+</html>
